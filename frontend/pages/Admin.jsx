@@ -7,7 +7,7 @@ import {
     updateItems,
     deleteTransactions,
 } from "../services/api";
-import { Lock } from "lucide-react";
+import { Lock, Plus, X, Save, LucideHeading4 } from "lucide-react";
 
 export const Admin = () => {
     const [isLoggedIn, setLogedIn] = useState(false);
@@ -97,5 +97,148 @@ const LogInPage = ({ onSuccess }) => {
 };
 
 const AdminPage = ({ onLogOut }) => {
-    return <h1>hello nothing here.</h1>;
+    const [newItem, setNewItem] = useState({});
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [editItem, setEditItem] = useState(false);
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const handleAddForm = async(e) => {
+        e.preventDefault();
+        
+        try{
+            await createItems(newItem);
+            console.log("Item created successfully");
+            setNewItem({});
+            setShowAddForm(false)
+        }catch(err){
+            console.error("error in posting the data: ", err);
+        }
+        
+    };
+
+    const handleEditItem = (e) => {
+        e.preventDefault();
+    };
+    
+    const cancelEdit = () => {
+        setShowAddForm(false);
+        setNewItem({});
+    }
+
+    // getting already stored items from the backend
+    useEffect(() => {
+        const fetchItemData = async () => {
+            try {
+                const res = await getItems();
+                const itemData = res.data;
+                setItems(itemData);
+            } catch (err) {
+                console.log("Failed to fetch the items: ", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchItemData();
+    }, []);
+
+    return (
+        <div className="space-y-6 bg-[#101827] px-20 py-20">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                        Admin Panel
+                    </h1>
+                    <p className="text-gray-600 dark:text-gray-400">
+                        Manage items, view transactions, and control inventory
+                    </p>
+                </div>
+                <button
+                    onClick={() => setShowAddForm(true)}
+                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm lg:text-base"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add New Item
+                </button>
+            </div>
+            {showAddForm && (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 lg:p-6">
+                    <h3 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Add New Item
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                        <input
+                            type="text"
+                            placeholder="Item Name"
+                            value={newItem.item_name || ""}
+                            onChange={(e) =>
+                                setNewItem((prev) => ({
+                                    ...prev,
+                                    item_name: e.target.value,
+                                }))
+                            }
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                            required
+                        />
+                        <input
+                            type="number"
+                            placeholder="Selling price"
+                            value={newItem.default_selling_price || ""}
+                            onChange={(e) =>
+                                setNewItem((prev) => ({
+                                    ...prev,
+                                    default_selling_price: e.target.value,
+                                }))
+                            }
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                            required
+                        />
+                        <input
+                            type="number"
+                            placeholder="Cost Price"
+                            value={newItem.default_cost_price || ""}
+                            onChange={(e) =>
+                                setNewItem((prev) => ({
+                                    ...prev,
+                                    default_cost_price: e.target.value,
+                                }))
+                            }
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                            required
+                        />
+                        <input
+                            type="number"
+                            placeholder="Item Per Box"
+                            value={newItem.items_per_box || ""}
+                            onChange={(e) =>
+                                setNewItem((prev) => ({
+                                    ...prev,
+                                    items_per_box: e.target.value,
+                                }))
+                            }
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                            required
+                        />
+                        <div className="flex gap-1.5 justify-end col-span-4">
+                            <button
+                                onClick={cancelEdit}
+                                className="flex items-center justify-center px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                <X className="w-4 h-4 mr-2" />
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddForm}
+                                className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <Save className="w-4 h-4 mr-2" />
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 };

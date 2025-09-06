@@ -39,13 +39,14 @@ const getAllItems = async (req, res) => {
 // Create new item
 const createItem = async (req, res) => {
     
-    const { item_name, default_cost_price, default_selling_price } = req.validatedBody;
+    const { item_name, default_cost_price, default_selling_price, items_per_box } = req.validatedBody;
 
     const docData = {
         _id: `item_${Date.now()}`,
         item_name,
         default_cost_price,
         default_selling_price,
+        items_per_box
     };
 
     try {
