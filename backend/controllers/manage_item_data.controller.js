@@ -12,17 +12,12 @@ const getAllItems = async (req, res) => {
             endkey: "item_\ufff0",
         });
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                status: false,
-                message: "No items found.",
-            });
-        }
-
         const items = result.rows.map((row) => row.doc);
         return res.status(200).json({
             status: true,
-            message: "Items retrieved successfully",
+            message: items.length
+                ? "Items retrieved successfully"
+                : "No items available",
             data: items,
             count: items.length,
         });
@@ -38,15 +33,19 @@ const getAllItems = async (req, res) => {
 
 // Create new item
 const createItem = async (req, res) => {
-    
-    const { item_name, default_cost_price, default_selling_price, items_per_box } = req.validatedBody;
+    const {
+        item_name,
+        default_cost_price,
+        default_selling_price,
+        items_per_box,
+    } = req.validatedBody;
 
     const docData = {
         _id: `item_${Date.now()}`,
         item_name,
         default_cost_price,
         default_selling_price,
-        items_per_box
+        items_per_box,
     };
 
     try {
@@ -73,7 +72,6 @@ const updateItem = async (req, res) => {
 
     try {
         const doc = await itemsDB.get(id);
-
         const updateData = {
             ...doc,
             ...newData,

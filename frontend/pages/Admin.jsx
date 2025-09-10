@@ -99,39 +99,75 @@ const LogInPage = ({ onSuccess }) => {
 const AdminPage = ({ onLogOut }) => {
     const [newItem, setNewItem] = useState({});
     const [showAddForm, setShowAddForm] = useState(false);
-    const [editItem, setEditItem] = useState(false);
+    const [editItem, setEditItem] = useState("");
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [updatedItems, setUpdatedItems] = useState({});
+    const [refresh, setRefresh] = useState(0);
 
-    const handleAddForm = async(e) => {
+    const handleSave = async (e) => {
+        const newUpdatedItem = {
+            ...editItem,
+            ...updatedItems,
+        };
+        const id = newUpdatedItem._id;
+
+        try {
+            await updateItems(id, newUpdatedItem);
+            console.log("Item is updated successfully");
+            setUpdatedItems({});
+            setEditItem("");
+            setRefresh((prev) => prev + 1);
+        } catch (err) {
+            console.error("error in updating the data: ", err);
+        }
+    };
+
+    const handleAddForm = async (e) => {
         e.preventDefault();
-        
-        try{
+        try {
             await createItems(newItem);
             console.log("Item created successfully");
             setNewItem({});
-            setShowAddForm(false)
-        }catch(err){
+            setShowAddForm(false);
+            setRefresh((prev) => prev + 1);
+        } catch (err) {
             console.error("error in posting the data: ", err);
         }
-        
     };
 
-    const handleEditItem = (e) => {
-        e.preventDefault();
+    const handleEditItem = (item) => {
+        setEditItem(item);
     };
-    
+
     const cancelEdit = () => {
         setShowAddForm(false);
         setNewItem({});
-    }
+    };
+
+    const cancelEditItem = () => {
+        setUpdatedItems({});
+        setEditItem("");
+    };
+
+    const handleDeleteItem = async (id) => {
+        try {
+            await deleteItems(id);
+            console.log("Item is deleted successfully");
+            setItems((prevItems) =>
+                prevItems.filter((item) => item._id !== id),
+            );
+        } catch (err) {
+            console.error("error in deleting error: ", err);
+        }
+    };
 
     // getting already stored items from the backend
     useEffect(() => {
         const fetchItemData = async () => {
             try {
                 const res = await getItems();
-                const itemData = res.data;
+                const itemData = res.data.data;
                 setItems(itemData);
             } catch (err) {
                 console.log("Failed to fetch the items: ", err);
@@ -141,7 +177,7 @@ const AdminPage = ({ onLogOut }) => {
         };
 
         fetchItemData();
-    }, []);
+    }, [refresh]);
 
     return (
         <div className="space-y-6 bg-[#101827] px-20 py-20">
@@ -236,6 +272,228 @@ const AdminPage = ({ onLogOut }) => {
                                 Add Item
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {items && (
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div className="px-4 lg:px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                        <h3 className="text-base lg:text-lg font-semibold text-slate-900 dark:text-white">
+                            All Items ({items.length})
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-slate-100 dark:bg-slate-800">
+                                <tr>
+                                    <th className="text-left py-2 lg:py-3 px-3 lg:px-6 font-medium text-slate-700 dark:text-slate-300 text-xs lg:text-sm">
+                                        Item
+                                    </th>
+                                    <th className="text-center py-2 lg:py-3 px-3 lg:px-6 font-medium text-slate-700 dark:text-slate-300 text-xs lg:text-sm">
+                                        Cost Price
+                                    </th>
+                                    <th className="text-center py-2 lg:py-3 px-3 lg:px-6 font-medium text-slate-700 dark:text-slate-300 text-xs lg:text-sm">
+                                        Selling Price
+                                    </th>
+                                    <th className="text-center py-2 lg:py-3 px-3 lg:px-6 font-medium text-slate-700 dark:text-slate-300 text-xs lg:text-sm">
+                                        Item Per Box
+                                    </th>
+                                    <th className="text-center py-2 lg:py-3 px-3 lg:px-6 font-medium text-slate-700 dark:text-slate-300 text-xs lg:text-sm">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                                {items && items.length > 0 ? (
+                                    items.map((item) => (
+                                        <tr
+                                            key={item.item_name}
+                                            className="hover:bg-slate-50 dark:hover:bg-slate-800"
+                                        >
+                                            {editItem._id === item._id ? (
+                                                <>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-left">
+                                                        <input
+                                                            type="text"
+                                                            name="item_name"
+                                                            value={
+                                                                updatedItems.item_name ??
+                                                                item.item_name ??
+                                                                ""
+                                                            }
+                                                            onChange={(e) => {
+                                                                setUpdatedItems(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        item_name:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }),
+                                                                );
+                                                            }}
+                                                            className="w-full rounded-md border p-2"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-center">
+                                                        <input
+                                                            type="number"
+                                                            name="default_cost_price"
+                                                            value={
+                                                                updatedItems.default_cost_price ??
+                                                                item.default_cost_price ??
+                                                                ""
+                                                            }
+                                                            onChange={(e) => {
+                                                                setUpdatedItems(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        default_cost_price:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }),
+                                                                );
+                                                            }}
+                                                            className="w-full rounded-md border p-2 text-center"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-center">
+                                                        <input
+                                                            type="number"
+                                                            name="default_selling_price"
+                                                            value={
+                                                                updatedItems.default_selling_price ??
+                                                                item.default_selling_price ??
+                                                                ""
+                                                            }
+                                                            onChange={(e) => {
+                                                                setUpdatedItems(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        default_selling_price:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }),
+                                                                );
+                                                            }}
+                                                            className="w-full rounded-md border p-2 text-center"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-left">
+                                                        <input
+                                                            type="number"
+                                                            name="items_per_box"
+                                                            value={
+                                                                updatedItems.items_per_box ??
+                                                                item.items_per_box ??
+                                                                ""
+                                                            }
+                                                            onChange={(e) => {
+                                                                setUpdatedItems(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        items_per_box:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }),
+                                                                );
+                                                            }}
+                                                            className="w-full rounded-md border p-2 text-center"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm mx-0">
+                                                        <div className="btn flex place-content-center gap-1.5">
+                                                            <div
+                                                                className="bg-green-600 w-20 h-8 place-content-center rounded-xl text-center hover:cursor-pointer hover:bg-green-700 text-slate-900 dark:text-slate-200"
+                                                                onClick={() =>
+                                                                    handleSave()
+                                                                }
+                                                            >
+                                                                Save
+                                                            </div>
+                                                            <div
+                                                                className="bg-red-600 w-20 h-8 place-content-center rounded-xl text-center hover:cursor-pointer hover:bg-red-700 text-slate-900 dark:text-slate-200"
+                                                                onClick={() =>
+                                                                    cancelEditItem()
+                                                                }
+                                                            >
+                                                                Cancel
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-left">
+                                                        {item.item_name}
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-center">
+                                                        {
+                                                            item.default_cost_price
+                                                        }
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-center">
+                                                        {
+                                                            item.default_selling_price
+                                                        }
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 text-center">
+                                                        {item.items_per_box}
+                                                    </td>
+                                                    <td className="px-3 lg:px-6 py-4 text-sm text-slate-900 dark:text-slate-200 mx-0">
+                                                        <div className="btn flex place-content-center gap-1.5">
+                                                            <div
+                                                                className="bg-blue-600 w-20 h-8 place-content-center rounded-xl text-center hover:cursor-pointer hover:bg-blue-700"
+                                                                onClick={() =>
+                                                                    handleEditItem(
+                                                                        item,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Edit
+                                                            </div>
+                                                            <div
+                                                                className="bg-red-600 w-20 h-8 place-content-center rounded-xl text-center hover:cursor-pointer        hover:bg-red-700"
+                                                                onClick={() =>
+                                                                    handleDeleteItem(
+                                                                        item._id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Delete
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <>
+                                        <tr>
+                                            <td colSpan="5" className="py-12">
+                                                <div className="flex flex-col items-center justify-center text-center">
+                                                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                                                        <Plus className="h-6 w-6 text-gray-400"></Plus>
+                                                    </div>
+                                                    <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                                                        No items available
+                                                    </p>
+                                                    <p className="text-gray-400 text-xs mt-1">
+                                                        Start by adding your
+                                                        first item
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             )}
