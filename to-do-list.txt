@@ -1,0 +1,7 @@
+create pages
+
+1. Dashboard
+2. Inventory
+3. Recipts
+4. Header working
+5. complete the admin transaction

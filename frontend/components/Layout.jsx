@@ -35,7 +35,6 @@ export const Layout = ({ children }) => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-            {/* Sidebar */}
             <div
                 className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform ${
                     isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
@@ -115,7 +114,6 @@ export const Layout = ({ children }) => {
                 )}
             </div>
 
-            {/* Mobile menu overlay */}
             {isMobileMenuOpen && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -123,7 +121,6 @@ export const Layout = ({ children }) => {
                 />
             )}
 
-            {/* Main content */}
             <div className="flex-1 flex flex-col">
                 {/* Mobile header */}
                 <div className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
@@ -153,7 +150,6 @@ export const Layout = ({ children }) => {
                     </div>
                 </div>
 
-                {/* Desktop theme toggle */}
                 <div className="hidden lg:flex justify-end p-4">
                     <button
                         onClick={toggleTheme}

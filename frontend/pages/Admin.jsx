@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
     getItems,
-    getTransactionsByDate,
     createItems,
     deleteItems,
     updateItems,
+    getTransactionsByDate,
     deleteTransactions,
 } from "../services/api";
 import { Lock, Plus, X, Save, LucideHeading4 } from "lucide-react";
@@ -47,7 +47,7 @@ const LogInPage = ({ onSuccess }) => {
     };
 
     return (
-        <div className="admin-lock bg-[#F9FAFB] h-dvh flex">
+        <div className="admin-lock bg-[#F9FAFB] h-screen flex pt-16">
             <div className="min-h-[400px] flex items-center justify-center px-4 w-full">
                 <div className="bg-white rounded-xl shadow-sm border p-6 w-full max-w-md">
                     <div className="flex justify-center mb-6">
@@ -178,10 +178,12 @@ const AdminPage = ({ onLogOut }) => {
 
         fetchItemData();
     }, [refresh]);
+    
+    
 
     return (
         <div className="space-y-6 bg-[#101827] px-20 py-20">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 admin-heading">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                         Admin Panel
