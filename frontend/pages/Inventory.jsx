@@ -7,13 +7,9 @@ import {
 
 export const Inventory = () => {
   const [loading, setLoading] = useState(true);
-  const [transactions, setTransactions] = useState({
-    quantity: 0,
-  });
   const [items, setItems] = useState([]);
   const [session, setSession] = useState("morning");
-  const [newItem, setNewItem] = useState([]);
-  const [total, setTotal] = useState(0.00);
+  const [total, setTotal] = useState(0);
 
   //creating the curr date of format (yyyy - mm - dd)
   const currentDate = new Date();
@@ -38,7 +34,14 @@ export const Inventory = () => {
         if (!ignore) {
           const mergeData = itemData.map((item) => {
             const trx = trxData.find((t) => t.item_id === item._id);
-            return trx ? trx : { ...item, quantity: 0 };
+            return trx
+              ? {
+                  ...trx,
+                  _id: item._id,
+                  cost_price: item.default_cost_price,
+                  sell_price: item.default_selling_price,
+                } // keep the DB _id for updates
+              : { ...item, item_id: item._id, quantity: 0 };
           });
           setItems(mergeData);
         }
@@ -55,6 +58,19 @@ export const Inventory = () => {
       ignore = true;
     };
   }, [session, customDate]);
+  
+  useEffect(() => {
+    const totalPrice = items.reduce(
+      (sum, item) =>
+        sum +
+        (item.quantity || 0) *
+          (item.cost_price ?? item.default_cost_price ?? 0),
+      0,
+    );
+    const roundedTotal = Math.round(totalPrice * 100) / 100;
+    setTotal(roundedTotal);
+    console.log(roundedTotal);
+  }, [items]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,76 +95,84 @@ export const Inventory = () => {
   };
 
   return (
-    <>
-      <div className="navigation bg-gray-50 min-h-screen p-6">
-        <form
-          className="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-6"
-          onSubmit={handleSubmit}
-        >
-          {/* Header */}
-          <div className="heading flex justify-between items-center border-b border-gray-200 pb-4 mb-4">
-            <h3 className="text-xl font-semibold text-[#224193]">Inventory</h3>
-            <div>
-              <select
-                id="time-select"
-                value={session ?? "morning"} // default value
-                onChange={(e) => setSession(e.target.value)}
-                className="block w-48 px-4 py-2 rounded-lg border border-[#6f9bd1] bg-white shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#6f9bd1] focus:border-[#224193] transition"
-              >
-                <option value="morning">🌅 Morning</option>
-                <option value="afternoon">🌞 Afternoon</option>
-              </select>
+    <div className="navigation bg-gray-100 dark:bg-gray-900 min-h-screen p-6">
+      <form
+        className="w-full max-w-3xl mx-auto bg-white dark:bg-gray-800 shadow-md rounded-xl p-6"
+        onSubmit={handleSubmit}
+      >
+        {/* Header */}
+        <div className="heading flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+          <h3 className="text-xl font-semibold text-indigo-600 dark:text-indigo-400">Inventory</h3>
+          <div>
+            <select
+              id="time-select"
+              value={session ?? "morning"}
+              onChange={(e) => setSession(e.target.value)}
+              className="block w-48 px-4 py-2 rounded-lg border border-indigo-300 dark:border-indigo-500 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-100 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-600 transition"
+            >
+              <option value="morning">🌅 Morning</option>
+              <option value="afternoon">🌞 Afternoon</option>
+            </select>
+          </div>
+        </div>
+    
+        {/* Items */}
+        <div className="main space-y-3">
+          {items.map((item) => (
+            <div
+              key={item.item_id ?? item._id}
+              className="flex justify-between items-center px-6 py-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition"
+            >
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-100">
+                {item.item_name}
+              </h3>
+              <input
+                type="number"
+                placeholder="0"
+                value={item.quantity === 0 ? "" : item.quantity}
+                min={0}
+                onChange={(e) =>
+                  setItems((prev) =>
+                    prev.map((i) =>
+                      i._id === item._id
+                        ? {
+                            ...i,
+                            quantity:
+                              e.target.value === "" ? 0 : Number(e.target.value),
+                          }
+                        : i
+                    )
+                  )
+                }
+                className="w-28 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-600 text-gray-700 dark:text-gray-100 shadow-sm"
+              />
+            </div>
+          ))}
+        </div>
+    
+        {/* Total */}
+        <div className="main space-y-3">
+          <div className="flex justify-between items-center px-6 py-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm mt-6">
+            <h3 className="text-base font-semibold text-indigo-600 dark:text-indigo-400 tracking-wide">
+              Total
+            </h3>
+            <div className="w-32 px-4 py-2 bg-indigo-600 dark:bg-indigo-500 border border-gray-300 rounded-lg text-white shadow-sm text-center font-medium">
+              ₹{total}
             </div>
           </div>
+        </div>
+    
+        {/* Submit Button */}
+        <div className="mt-6 flex justify-end">
+          <button
+            type="submit"
+            className="px-6 py-2 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white font-medium shadow hover:bg-indigo-500 dark:hover:bg-indigo-400 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-400 transition"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
 
-          {/* Items */}
-          <div className="main space-y-3">
-            {items.map((item) => (
-              <div
-                key={item.item_id ?? item._id}
-                className="flex justify-between items-center px-6 py-4 bg-gray-50 rounded-lg hover:bg-[#f1f5fb] transition"
-              >
-                <h3 className="text-sm font-medium text-gray-700">
-                  {item.item_name}
-                </h3>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={item.quantity === 0 ? "" : item.quantity}
-                  min={0}
-                  onChange={(e) =>
-                    setItems((prev) =>
-                      prev.map((i) =>
-                        i._id === item._id
-                          ? {
-                              ...i,
-                              quantity:
-                                e.target.value === ""
-                                  ? 0
-                                  : Number(e.target.value),
-                            }
-                          : i,
-                      ),
-                    )
-                  }
-                  className="w-28 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6f9bd1] focus:border-[#224193] text-gray-700 shadow-sm"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Submit Button */}
-          <div className="mt-6 flex justify-end">
-            <button
-              type="submit"
-              className="px-6 py-2 rounded-lg bg-[#224193] text-white font-medium shadow hover:bg-[#6f9bd1] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#6f9bd1] transition"
-              onSubmit={handleSubmit}
-            >
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
   );
 };
