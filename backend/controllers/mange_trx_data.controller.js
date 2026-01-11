@@ -13,7 +13,7 @@ export const upsertSession = async (req, res) => {
   // compute profit for each item before saving
   const enriched = items.map((i) => ({
     ...i,
-    profit: (i.sell_price - i.cost_price) * i.quantity,
+    profit: (i.default_selling_price - i.default_cost_price) * i.quantity,
   }));
 
   const docId = `txn_${date}_${session}`;

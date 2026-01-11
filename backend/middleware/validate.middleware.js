@@ -36,8 +36,8 @@ export const transactionSchema = Joi.object({
       Joi.object({
         item_id: Joi.string().required(),
         item_name: Joi.string().required(),
-        cost_price: Joi.number().positive().required(),
-        sell_price: Joi.number().positive().required(),
+        default_cost_price: Joi.number().positive().required(),
+        default_selling_price: Joi.number().positive().required(),
         quantity: Joi.number().integer().min(0).default(0),
       }),
     )

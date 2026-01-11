@@ -49,7 +49,7 @@ const createItem = async (req, res) => {
     };
 
     try {
-        const result = await itemsDB.post(docData);
+        const result = await itemsDB.put(docData);
 
         res.status(201).json({
             status: true,
