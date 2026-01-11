@@ -1,61 +1,82 @@
-import { Menu } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Menu, X, LayoutDashboard, Package, Receipt, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
-  const navItem = [
-    { name: "Dashboard", path: "/" },
-    { name: "Inventory", path: "/inventory" },
-    { name: "Recipts", path: "/recipts" },
-    { name: "Admin", path: "/admin" },
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation(); // Hook to check the current route
+
+  const navItems = [
+    { name: "Dashboard", path: "/", icon: <LayoutDashboard size={18} /> },
+    { name: "Inventory", path: "/inventory", icon: <Package size={18} /> },
+    { name: "Receipts", path: "/recipts", icon: <Receipt size={18} /> },
+    { name: "Admin", path: "/admin", icon: <ShieldCheck size={18} /> },
   ];
+
+  // Helper to check if link is active
+  const isActive = (path) => location.pathname === path;
+
   return (
-    // <nav className="bg-[#224193] sticky top-0 text-white px-6 py-4 flex items-center justify-between shadow-md z-50">
-    //   {/* Left: Logo */}
-    //   <div className="text-2xl font-extrabold bg-gradient-to-r from-red-500 to-blue-500 bg-clip-text text-transparent">
-    //     Inventory Pro
-    //   </div>
+    <nav className="sticky top-0 z-[100] bg-[#0b0f1a]/80 backdrop-blur-xl border-b border-gray-800 px-6 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
 
-    //   {/* Center/Right: Nav Links */}
-    //   <div className="hidden md:flex space-x-8">
-    //     {navItem.map((item) => (
-    //       <Link key={item.name} to={item.path} className="relative group">
-    //         <span className="transition-colors duration-200 group-hover:text-[#6f9bd1]">
-    //           {item.name}
-    //         </span>
-    //         {/* underline effect */}
-    //         <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-[#df3c5f] transition-all group-hover:w-full"></span>
-    //       </Link>
-    //     ))}
-    //   </div>
+        {/* Left: Brand Logo */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="bg-blue-600 p-1.5 rounded-lg group-hover:rotate-12 transition-transform duration-300">
+            <Package className="text-white w-5 h-5" />
+          </div>
+          <div className="text-xl font-black tracking-tighter text-white">
+            VEND<span className="text-blue-500">PRO</span>
+          </div>
+        </Link>
 
-    //   {/* Mobile Menu Button */}
-    //   <button className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition">
-    //     <Menu size={28} />
-    //   </button>
-    // </nav>
-    
-    <nav className="bg-gray-900 sticky top-0 text-white px-6 py-4 flex items-center justify-between shadow-md z-50">
-      {/* Left: Logo */}
-      <div className="text-2xl font-bold text-blue-500">
-        Inventory Pro
+        {/* Center: Desktop Nav Links */}
+        <div className="hidden md:flex items-center gap-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                isActive(item.path)
+                  ? "bg-blue-600/10 text-blue-500"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+              }`}
+            >
+              {item.icon}
+              {item.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
-    
-      {/* Center/Right: Nav Links */}
-      <div className="hidden md:flex space-x-8">
-        {navItem.map((item) => (
-          <Link key={item.name} to={item.path} className="relative group text-gray-200 hover:text-white transition-colors">
-            {item.name}
-            {/* subtle underline effect */}
-            <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full"></span>
-          </Link>
-        ))}
-      </div>
-    
-      {/* Mobile Menu Button */}
-      <button className="md:hidden p-2 rounded-lg hover:bg-gray-800 transition">
-        <Menu size={28} />
-      </button>
+
+      {/* Mobile Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute top-full left-0 w-full bg-[#0b0f1a] border-b border-gray-800 p-4 space-y-2 md:hidden animate-in slide-in-from-top duration-200">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              onClick={() => setIsOpen(false)}
+              className={`flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                isActive(item.path)
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-400 hover:bg-gray-800"
+              }`}
+            >
+              {item.icon}
+              {item.name}
+            </Link>
+          ))}
+        </div>
+      )}
     </nav>
-
   );
 };

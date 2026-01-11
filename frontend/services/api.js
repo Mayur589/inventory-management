@@ -13,7 +13,7 @@ export const deleteItems = (id) => api.delete(`/items/${id}`);
 // transactions calls
 export const getTransactionsByDate = (date, session) => api.get(`/transactions/${date}/${session}`);
 export const createTransactions = (data) => api.post(`/transactions`, data);
-export const getTransactionsRange = (start, end) => api.get(`/transactions/range?start=${start}&end=${end}`);
-export const deleteTransactions = (date, session) => api.delete(`/transactions/${date}/${session}`);
+export const getTransactionByRange= (start, end) => api.get(`/transactions/range?start=${start}&end=${end}`);
+export const deleteTransaction = (date, session) => api.delete(`/transactions/${date}/${session}`);
 
 export default api;
