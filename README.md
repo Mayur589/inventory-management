@@ -24,16 +24,45 @@
 ## 📂 Project Structure
 
 ```text
-frontend/
-├── src/
-│   ├── components/       # Reusable UI (Navbar, KPI Cards)
-│   ├── pages/            # Dashboard, Inventory, Admin, Receipts
-│   ├── services/         # API (Axios) configurations
-│   └── App.jsx           # Main routing and Layout
-backend/
-├── config/               # PouchDB initializations
-├── controllers/          # Transaction & Item logic
-└── routes/               # API endpoints
+.
+├── README.md
+├── backend
+│   ├── config
+│   │   └── database.js
+│   ├── controllers
+│   │   ├── manage_item_data.controller.js
+│   │   └── mange_trx_data.controller.js
+│   ├── index.js
+│   ├── middleware
+│   │   └── validate.middleware.js
+│   └── routes
+│      └── inventory.route.js
+├── frontend
+│   ├── components
+│   │   ├── Layout.jsx
+│   │   └── Navbar.jsx
+│   ├── context
+│   │   └── ThemeContext.jsx
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── pages
+│   │   ├── Admin.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── Inventory.jsx
+│   │   └── Recipts.jsx
+│   ├── services
+│   │   └── api.js
+│   ├── src
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── vite.config.js
+├── package-lock.json
+├── package.json
+├── pouch
+└── to-do-list.txt
 
 ```
 
@@ -44,7 +73,7 @@ backend/
 1. **Clone the repository:**
 ```bash
 git clone https://github.com/yourusername/vendpro.git
-cd vendpro
+cd inventory-management
 
 ```
 
@@ -62,7 +91,7 @@ cd backend && npm install
 3. **Run the Project:**
 ```bash
 # Start Backend (on port 3001)
-cd backend && npm start
+cd backend && npm run dev
 # Start Frontend
 cd frontend && npm run dev
 
